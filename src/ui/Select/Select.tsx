@@ -1,4 +1,4 @@
-import { useEffect, useId, useRef, useState } from 'react'
+import { useEffect, useId, useRef, useState, type KeyboardEvent } from 'react'
 import styles from './Select.module.css'
 
 export interface SelectOption<T extends string> {
@@ -30,8 +30,30 @@ export const Select = <T extends string>({
   const listboxId = `${triggerId}-listbox`
   const rootRef = useRef<HTMLDivElement>(null)
   const [isOpen, setIsOpen] = useState(false)
+  const [activeIndex, setActiveIndex] = useState(() =>
+    Math.max(
+      0,
+      options.findIndex((option) => option.value === value),
+    ),
+  )
 
   const selected = options.find((option) => option.value === value) ?? options[0]
+
+  const openMenu = (index?: number) => {
+    const selectedIndex = options.findIndex((option) => option.value === value)
+    setActiveIndex(index ?? (selectedIndex >= 0 ? selectedIndex : 0))
+    setIsOpen(true)
+  }
+
+  const selectIndex = (index: number) => {
+    const option = options[index]
+    if (!option) {
+      return
+    }
+
+    onChange(option.value)
+    setIsOpen(false)
+  }
 
   useEffect(() => {
     if (!isOpen) {
@@ -44,20 +66,61 @@ export const Select = <T extends string>({
       }
     }
 
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        event.stopPropagation()
-        setIsOpen(false)
-      }
+    document.addEventListener('mousedown', onPointerDown)
+    return () => document.removeEventListener('mousedown', onPointerDown)
+  }, [isOpen])
+
+  const onTriggerKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (disabled) {
+      return
     }
 
-    document.addEventListener('mousedown', onPointerDown)
-    document.addEventListener('keydown', onKeyDown, true)
-    return () => {
-      document.removeEventListener('mousedown', onPointerDown)
-      document.removeEventListener('keydown', onKeyDown, true)
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault()
+      if (!isOpen) {
+        openMenu()
+        return
+      }
+
+      setActiveIndex((current) => {
+        if (event.key === 'ArrowDown') {
+          return (current + 1) % options.length
+        }
+
+        return (current - 1 + options.length) % options.length
+      })
+      return
     }
-  }, [isOpen])
+
+    if (event.key === 'Enter' || event.key === ' ') {
+      event.preventDefault()
+      if (!isOpen) {
+        openMenu()
+        return
+      }
+
+      selectIndex(activeIndex)
+      return
+    }
+
+    if (event.key === 'Escape' && isOpen) {
+      event.preventDefault()
+      event.stopPropagation()
+      setIsOpen(false)
+      return
+    }
+
+    if (event.key === 'Home' && isOpen) {
+      event.preventDefault()
+      setActiveIndex(0)
+      return
+    }
+
+    if (event.key === 'End' && isOpen) {
+      event.preventDefault()
+      setActiveIndex(options.length - 1)
+    }
+  }
 
   return (
     <div className={`${styles.root} ${fullWidth ? styles.rootFull : ''}`} ref={rootRef}>
@@ -69,8 +132,17 @@ export const Select = <T extends string>({
         aria-expanded={isOpen}
         aria-controls={listboxId}
         aria-labelledby={ariaLabelledBy}
+        aria-activedescendant={isOpen ? `${listboxId}-option-${activeIndex}` : undefined}
         disabled={disabled}
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => {
+          if (isOpen) {
+            setIsOpen(false)
+            return
+          }
+
+          openMenu()
+        }}
+        onKeyDown={onTriggerKeyDown}
       >
         <span>{selected?.label}</span>
         <svg
@@ -90,20 +162,21 @@ export const Select = <T extends string>({
 
       {isOpen ? (
         <ul id={listboxId} className={styles.menu} role="listbox" aria-labelledby={triggerId}>
-          {options.map((option) => {
+          {options.map((option, index) => {
             const isSelected = option.value === value
+            const isActive = index === activeIndex
 
             return (
               <li key={option.value} role="presentation">
                 <button
+                  id={`${listboxId}-option-${index}`}
                   type="button"
                   role="option"
+                  tabIndex={-1}
                   aria-selected={isSelected}
-                  className={`${styles.option} ${isSelected ? styles.optionSelected : ''}`}
-                  onClick={() => {
-                    onChange(option.value)
-                    setIsOpen(false)
-                  }}
+                  className={`${styles.option} ${isSelected ? styles.optionSelected : ''} ${isActive ? styles.optionActive : ''}`}
+                  onMouseEnter={() => setActiveIndex(index)}
+                  onClick={() => selectIndex(index)}
                 >
                   {option.label}
                 </button>

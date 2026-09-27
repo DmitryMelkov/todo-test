@@ -1,15 +1,18 @@
 import { PRIORITY_LABELS, type Priority, type Task } from '@/types/task'
 import { Button } from '@/ui/Button'
-import type { PriorityFilter } from '../type'
+import { PriorityChip } from '@/ui/PriorityChip'
+import type { PriorityFilter } from '../model'
 import styles from '../Tasks.module.css'
 
 interface TaskListProps {
   tasks: Task[]
   priorityFilter: PriorityFilter
   onCreate: () => void
+  onEdit: (task: Task) => void
+  onDelete: (task: Task) => void
 }
 
-export const TaskList = ({ tasks, priorityFilter, onCreate }: TaskListProps) => {
+export const TaskList = ({ tasks, priorityFilter, onCreate, onEdit, onDelete }: TaskListProps) => {
   if (tasks.length === 0) {
     const isFiltered = priorityFilter !== 'all'
 
@@ -34,13 +37,31 @@ export const TaskList = ({ tasks, priorityFilter, onCreate }: TaskListProps) => 
         <li key={task.id} className={styles.item}>
           <div className={styles.itemMain}>
             <span className={styles.itemTitle}>{task.title}</span>
-            <span className={`${styles.badge} ${styles[`badge_${task.priority}`]}`}>
-              {PRIORITY_LABELS[task.priority]}
-            </span>
+            <PriorityChip priority={task.priority} />
           </div>
-          <time className={styles.itemDate} dateTime={task.createdAt}>
-            {new Date(task.createdAt).toLocaleString('ru-RU')}
-          </time>
+          <div className={styles.itemFooter}>
+            <time className={styles.itemDate} dateTime={task.createdAt}>
+              {new Date(task.createdAt).toLocaleString('ru-RU')}
+            </time>
+            <div className={styles.itemActions}>
+              <Button
+                type="button"
+                variant="secondary"
+                className={styles.itemAction}
+                onClick={() => onEdit(task)}
+              >
+                Изменить
+              </Button>
+              <Button
+                type="button"
+                variant="secondary"
+                className={styles.itemAction}
+                onClick={() => onDelete(task)}
+              >
+                Удалить
+              </Button>
+            </div>
+          </div>
         </li>
       ))}
     </ul>

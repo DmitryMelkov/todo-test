@@ -12,6 +12,11 @@ export interface CreateTaskPayload {
   priority: Priority
 }
 
+export interface UpdateTaskPayload {
+  title: string
+  priority: Priority
+}
+
 export const PRIORITIES: Priority[] = ['low', 'medium', 'high']
 
 export const PRIORITY_LABELS: Record<Priority, string> = {

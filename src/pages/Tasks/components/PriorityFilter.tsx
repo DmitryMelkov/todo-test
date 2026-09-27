@@ -1,6 +1,6 @@
 import { PRIORITIES, PRIORITY_LABELS } from '@/types/task'
 import { Select } from '@/ui/Select'
-import type { PriorityFilter as PriorityFilterValue } from '../type'
+import type { PriorityFilter as PriorityFilterValue } from '../model'
 import styles from '../Tasks.module.css'
 
 interface PriorityFilterProps {

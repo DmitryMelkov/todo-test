@@ -47,4 +47,42 @@ describe('tasksService', () => {
     await vi.advanceTimersByTimeAsync(350)
     await expectation
   })
+
+  it('updateTask обновляет существующую задачу', async () => {
+    const id = MOCK_TASKS[0].id
+    const promise = tasksService.updateTask(id, {
+      title: '  Обновлённый заголовок  ',
+      priority: 'low',
+    })
+    await vi.advanceTimersByTimeAsync(350)
+    const updated = await promise
+
+    expect(updated.id).toBe(id)
+    expect(updated.title).toBe('Обновлённый заголовок')
+    expect(updated.priority).toBe('low')
+  })
+
+  it('updateTask падает если задачи нет', async () => {
+    const promise = tasksService.updateTask('missing', {
+      title: 'Нет такой',
+      priority: 'medium',
+    })
+    const expectation = expect(promise).rejects.toThrow('Задача не найдена')
+    await vi.advanceTimersByTimeAsync(350)
+    await expectation
+  })
+
+  it('deleteTask удаляет задачу из стора', async () => {
+    const id = MOCK_TASKS[0].id
+    const deletePromise = tasksService.deleteTask(id)
+    await vi.advanceTimersByTimeAsync(350)
+    await deletePromise
+
+    const listPromise = tasksService.getTasks()
+    await vi.advanceTimersByTimeAsync(350)
+    const list = await listPromise
+
+    expect(list.find((task) => task.id === id)).toBeUndefined()
+    expect(list).toHaveLength(MOCK_TASKS.length - 1)
+  })
 })

@@ -11,6 +11,21 @@
       rel="stylesheet"
     />
     <title>Задачи</title>
+    <script>
+      ;(function () {
+        try {
+          var key = 'todo-theme'
+          var stored = localStorage.getItem(key)
+          var theme =
+            stored === 'light' || stored === 'dark'
+              ? stored
+              : window.matchMedia('(prefers-color-scheme: dark)').matches
+                ? 'dark'
+                : 'light'
+          document.documentElement.dataset.theme = theme
+        } catch (e) {}
+      })()
+    </script>
   </head>
   <body>
     <div id="root"></div>

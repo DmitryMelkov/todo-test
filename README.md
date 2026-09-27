@@ -1,8 +1,9 @@
 # todo-test
 
-Тестовое задание: страница задач с фильтром по приоритету и созданием задачи через модалку.
+Тестовое задание: страница задач с фильтром по приоритету, созданием, редактированием и удалением.
 
-Палитра и типографика через CSS variables (Inter), без UI-kit: стили — CSS Modules.
+Палитра и типографика через CSS variables (Inter), без UI-kit: стили — CSS Modules.  
+Есть светлая/тёмная тема (`data-theme` + `localStorage`, без вспышки при загрузке).
 
 ## Стек
 
@@ -29,24 +30,19 @@ npm run dev
 
 ## Архитектура
 
-Подход как у feature-страниц (type → reducer → hooks → UI):
+Подход feature-страницы: model → hooks → components → UI:
 
 ```
 src/
-  ui/                        # переиспользуемые UI без доменной логики
-    Button/
-    Select/
+  theme/                     # light/dark: apply + useTheme
+  ui/                        # Button, Select, Modal, ConfirmModal, ThemeToggle, Toast, PriorityChip
   types/task.ts              # доменные типы
   services/tasks/            # слой данных (мок вместо API)
-    mockData.ts
-    index.ts                 # getTasks / createTask + delay
   pages/Tasks/
-    type.ts                  # state + actions
-    reducer.ts               # useReducer
-    utils.ts                 # фильтр и валидация
-    hooks.ts                 # useTasksPage: загрузка, create, UI-колбэки
+    model/                   # type, reducer, utils (+ тесты)
+    hooks/                   # useTasksPage
+    components/              # фильтр, список, модалка формы
     index.tsx                # страница
-    components/              # фильтр, список, модалка
 ```
 
 ### Почему так

@@ -38,5 +38,5 @@
 
 .secondary:hover:not(:disabled) {
   background: var(--color-surface-muted);
-  border-color: #d1d5db;
+  border-color: var(--color-border-strong);
 }
