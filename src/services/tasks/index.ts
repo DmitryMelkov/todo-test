@@ -7,6 +7,11 @@ const delay = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve,
 
 let tasksStore: Task[] = [...MOCK_TASKS]
 
+/** Сброс in-memory стора между тестами */
+export const resetTasksStore = () => {
+  tasksStore = [...MOCK_TASKS]
+}
+
 export const tasksService = {
   async getTasks(): Promise<Task[]> {
     await delay(MOCK_DELAY_MS)

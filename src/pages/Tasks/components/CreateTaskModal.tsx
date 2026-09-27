@@ -1,5 +1,7 @@
 import { useEffect, useId, useRef } from 'react'
 import { PRIORITIES, PRIORITY_LABELS, type Priority } from '@/types/task'
+import { Button } from '@/ui/Button'
+import { Select } from '@/ui/Select'
 import type { TaskFormState } from '../type'
 import styles from '../Tasks.module.css'
 
@@ -50,17 +52,39 @@ export const CreateTaskModal = ({
   }
 
   return (
-    <div className={styles.overlay} role="presentation" onClick={onClose}>
+    <div className={styles.overlay} role="presentation">
       <div
         className={styles.modal}
         role="dialog"
         aria-modal="true"
         aria-labelledby="create-task-title"
-        onClick={(event) => event.stopPropagation()}
       >
-        <h2 id="create-task-title" className={styles.modalTitle}>
-          Новая задача
-        </h2>
+        <div className={styles.modalHeader}>
+          <h2 id="create-task-title" className={styles.modalTitle}>
+            Новая задача
+          </h2>
+          <button
+            type="button"
+            className={styles.modalClose}
+            onClick={onClose}
+            disabled={isSubmitting}
+            aria-label="Закрыть"
+          >
+            <svg
+              className={styles.modalCloseIcon}
+              viewBox="0 0 24 24"
+              width="18"
+              height="18"
+              aria-hidden="true"
+              focusable="false"
+            >
+              <path
+                d="M6.4 6.4a1 1 0 0 1 1.4 0L12 10.6l4.2-4.2a1 1 0 1 1 1.4 1.4L13.4 12l4.2 4.2a1 1 0 0 1-1.4 1.4L12 13.4l-4.2 4.2a1 1 0 0 1-1.4-1.4L10.6 12 6.4 7.8a1 1 0 0 1 0-1.4Z"
+                fill="currentColor"
+              />
+            </svg>
+          </button>
+        </div>
 
         <form
           className={styles.form}
@@ -83,37 +107,30 @@ export const CreateTaskModal = ({
             />
           </label>
 
-          <label className={styles.field} htmlFor={priorityId}>
-            <span>Приоритет</span>
-            <select
-              id={priorityId}
-              className={styles.select}
+          <div className={styles.field}>
+            <span id={priorityId}>Приоритет</span>
+            <Select
               value={form.priority}
-              onChange={(event) => onPriorityChange(event.target.value as Priority)}
+              options={PRIORITIES.map((priority) => ({
+                value: priority,
+                label: PRIORITY_LABELS[priority],
+              }))}
+              onChange={onPriorityChange}
               disabled={isSubmitting}
-            >
-              {PRIORITIES.map((priority) => (
-                <option key={priority} value={priority}>
-                  {PRIORITY_LABELS[priority]}
-                </option>
-              ))}
-            </select>
-          </label>
+              aria-labelledby={priorityId}
+              fullWidth
+            />
+          </div>
 
           {formError ? <p className={styles.formError}>{formError}</p> : null}
 
           <div className={styles.modalActions}>
-            <button
-              type="button"
-              className={styles.buttonSecondary}
-              onClick={onClose}
-              disabled={isSubmitting}
-            >
+            <Button type="button" variant="secondary" onClick={onClose} disabled={isSubmitting}>
               Отмена
-            </button>
-            <button type="submit" className={styles.button} disabled={isSubmitting}>
+            </Button>
+            <Button type="submit" disabled={isSubmitting}>
               {isSubmitting ? 'Создание…' : 'Создать'}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

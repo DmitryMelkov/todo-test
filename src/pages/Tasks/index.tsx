@@ -1,3 +1,4 @@
+import { Button } from '@/ui/Button'
 import { CreateTaskModal } from './components/CreateTaskModal'
 import { PriorityFilterSelect } from './components/PriorityFilter'
 import { TaskList } from './components/TaskList'
@@ -29,9 +30,9 @@ export const TasksPage = () => {
           <h1 className={styles.title}>Задачи</h1>
           <p className={styles.subtitle}>Список задач с фильтром по приоритету</p>
         </div>
-        <button type="button" className={styles.button} onClick={openCreateModal}>
+        <Button type="button" className={styles.headerAction} onClick={openCreateModal}>
           Создать задачу
-        </button>
+        </Button>
       </header>
 
       <section className={styles.toolbar}>
@@ -40,7 +41,22 @@ export const TasksPage = () => {
 
       {error ? <p className={styles.error}>{error}</p> : null}
 
-      {isLoading ? <p className={styles.empty}>Загрузка…</p> : <TaskList tasks={filteredTasks} />}
+      {isLoading ? (
+        <div className={styles.status} role="status" aria-live="polite" aria-busy="true">
+          <div className={styles.skeletonList} aria-hidden="true">
+            <div className={styles.skeletonItem} />
+            <div className={styles.skeletonItem} />
+            <div className={styles.skeletonItem} />
+          </div>
+          <p className={styles.statusText}>Загрузка задач…</p>
+        </div>
+      ) : (
+        <TaskList
+          tasks={filteredTasks}
+          priorityFilter={priorityFilter}
+          onCreate={openCreateModal}
+        />
+      )}
 
       <CreateTaskModal
         isOpen={isCreateModalOpen}

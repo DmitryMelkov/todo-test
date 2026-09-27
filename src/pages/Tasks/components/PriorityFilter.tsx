@@ -1,4 +1,5 @@
 import { PRIORITIES, PRIORITY_LABELS } from '@/types/task'
+import { Select } from '@/ui/Select'
 import type { PriorityFilter as PriorityFilterValue } from '../type'
 import styles from '../Tasks.module.css'
 
@@ -16,20 +17,19 @@ const FILTER_OPTIONS: { value: PriorityFilterValue; label: string }[] = [
 ]
 
 export const PriorityFilterSelect = ({ value, onChange }: PriorityFilterProps) => {
+  const labelId = 'priority-filter-label'
+
   return (
-    <label className={styles.filter}>
-      <span className={styles.filterLabel}>Приоритет</span>
-      <select
-        className={styles.select}
+    <div className={styles.filter}>
+      <span id={labelId} className={styles.filterLabel}>
+        Приоритет
+      </span>
+      <Select
         value={value}
-        onChange={(event) => onChange(event.target.value as PriorityFilterValue)}
-      >
-        {FILTER_OPTIONS.map((option) => (
-          <option key={option.value} value={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
-    </label>
+        options={FILTER_OPTIONS}
+        onChange={onChange}
+        aria-labelledby={labelId}
+      />
+    </div>
   )
 }
